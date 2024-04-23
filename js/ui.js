@@ -155,6 +155,12 @@ btns['new'].oncontextmenu = function (){
 btns['open'].onclick = async function (){		
   const pickerOpts = {types: [{description: 'MicroCity Web File', accept: {'lua/*': ['.mw', '.lua']}},], excludeAcceptAllOption: false, multiple: false};
   try{
+    if (!isBrowserCompatible()) {
+      console.log('Browser not compatible, using input control to open file')
+      compatibleOpenFile();
+      return;
+    }
+  
     [lua.file] = await showOpenFilePicker(pickerOpts);
     const blob = await lua.file.getFile();
     const fileExtension = lua.file.name.split('.').pop(); // 获取文件扩展名
@@ -174,12 +180,52 @@ btns['open'].onclick = async function (){
   }
 }
 
+function isBrowserCompatible() {
+  return navigator.userAgent.indexOf('obile') == -1 && navigator.userAgent.indexOf('Chrom') > -1;
+}
+
+const fileInput = document.getElementById('code_input');
+function compatibleOpenFile(){
+  fileInput.click();
+}
+
+fileInput.addEventListener('change', async function(event) {
+  let file = fileInput.files[0];
+  if (!file) {
+    console.error('No file selected');
+    return;
+  }
+
+  const blob = file;
+  const fileExtension = blob.name.split('.').pop();
+  console.log(`File extension: ${fileExtension}`);
+
+  if(fileExtension === 'lua') {
+    const contents = await blob.text();
+    aceeditor.setValue(contents, 1);
+    localStorage.setItem('luacode', contents);
+  }else if(fileExtension === 'mw' || fileExtension === 'gz') {
+    worker.postMessage({fn: 'OnNewFS'});
+    const decompdata = await RemoteCall('UnpackFiles', blob);
+    aceeditor.setValue(decompdata.code, 1);
+    localStorage.setItem('luacode', decompdata.code);
+  }
+  Print({color:'white', text:`The ${blob.name} has been opened!`});
+});
+
 btns['open'].oncontextmenu = () => OnFilePicker();
 
 // btns['save'].onclick = () => worker.postMessage({fn: 'OnFileSave'});
 btns['save'].onclick = async function(){
   if(!lua.file){
     try{
+      if (!isBrowserCompatible()) {
+        let blob =  await RemoteCall('PackFiles', aceeditor.getValue(), ''); // Safari上仍然以.gz结尾
+        compatibleSaveFile(blob, 'untitled.mw');
+        Print({color:'white', text:`All changes has been saved to ${lua.file.name}!`});
+        return;
+      }
+
       const pickerOpts = {
         suggestedName: 'untitled.mw', types: [
           {description: 'MicroCity Web File', accept: {'lua/*': ['.mw']}},
@@ -203,6 +249,17 @@ btns['save'].onclick = async function(){
   await writable.close();			
   Print({color:'white', text:`All changes has been saved to ${lua.file.name}!`});
   localStorage.setItem('luacode', aceeditor.getValue());
+}
+
+function compatibleSaveFile(blob, filename) {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename; // 设置下载文件的名称
+  document.body.appendChild(a); // 将a标签添加到文档中
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
 }
 
 btns['save'].oncontextmenu = async function (){
