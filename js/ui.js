@@ -285,7 +285,8 @@ btns['pub'].onclick = async function (){
       const base64String = reader.result.split(",")[1];
       try { 
         const response = await fetch(
-          `https://api.github.com/repos/mixwind-1/microcity/contents/${id}`,
+          // `https://api.github.com/repos/mixwind-1/microcity/contents/${id}`,
+          `https://gproxy.zhhuu.top/repos/mixwind-1/microcity/contents/${id}`,
           {
             method: "PUT",
             headers: {

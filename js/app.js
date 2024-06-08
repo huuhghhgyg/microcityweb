@@ -361,7 +361,8 @@ if(location.hash == '' || location.hash.length <= 2){
   const token = atob(atob('WjJod1gxWTRjbGcxT1hCSFpHNXBRbGc0Y21wUFJXSlhSM2hUYlZwTlQzUkhTVEZoY25kVk5RPT0='));
   try { 
     const response = await fetch(
-      `https://api.github.com/repos/mixwind-1/microcity/contents/${id}`,
+      // `https://api.github.com/repos/mixwind-1/microcity/contents/${id}`,
+      `https://gproxy.zhhuu.top/repos/mixwind-1/microcity/contents/${id}`,
       {
         headers: {
           Accept: "application/vnd.github+json",
