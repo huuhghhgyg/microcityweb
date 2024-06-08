@@ -225,7 +225,7 @@ btns['save'].onclick = async function(){
       if (!isBrowserCompatible()) {
         let blob =  await RemoteCall('PackFiles', aceeditor.getValue(), ''); // Safari上仍然以.gz结尾
         compatibleSaveFile(blob, 'untitled.mw');
-        Print({color:'white', text:`All changes has been saved to ${lua.file.name}!`});
+        Print({color:'white', text:`All changes has been saved to 'untitled.mw'!`});
         return;
       }
 
