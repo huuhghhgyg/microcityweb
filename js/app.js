@@ -362,7 +362,7 @@ if(location.hash == '' || location.hash.length <= 2){
   try { 
     const response = await fetch(
       // `https://api.github.com/repos/mixwind-1/microcity/contents/${id}`,
-      `https://gproxy.zhhuu.top/repos/mixwind-1/microcity/contents/${id}`,
+      `https://proxy.zhhuu.top/github/repos/mixwind-1/microcity/contents/${id}`,
       {
         headers: {
           Accept: "application/vnd.github+json",
