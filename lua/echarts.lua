@@ -1,19 +1,17 @@
+print()
+
 -- 导入图表库
 os.upload('/lua/lib/charts.lua')
 require('charts')
-
--- 代码示例
-print()
 
 -- 先创建options再创建折线图
 local data = {
     data = {{1, 820}, {2, 932}, {3, 901}, {4, 934}, {5, 1290}, {6, 1330}, {7, 1350}},
     type = 'line'
 }
--- print(data)
 
 local options = CreateChartOptions(data, {name='x-axis'}, {name='y-axis'})
-print(options)
+print('options:', options..' ')  -- 最后的 ' ' 避免清屏
 
 CreateChartAdvanced('chart1', options)
 
@@ -38,6 +36,6 @@ CreateChart('chart3', data3, {
     data={'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'}
 })
 
--- 清空图表
+-- -- 清空图表
 -- os.sleep(2000)
 -- ClearCharts()

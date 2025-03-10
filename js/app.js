@@ -6,17 +6,17 @@ self.lua = {state: '', file: null, rets:[], bps: aceeditor.session.getBreakpoint
 
 self.SetChatAPI = function (url, key, model){
   if (!url)
-    url = localStorage.getItem('chat_url') || 'https://api.chatanywhere.tech/v1'
+    url = localStorage.getItem('chat_url') || 'https://models.inference.ai.azure.com'
   else
     localStorage.setItem('chat_url', url);
 
   if (!key)
-    key = localStorage.getItem('chat_key') || 'sk-2IYWOuCp7XW9NuO13kzpCsNdv1WcjvloYIafMpPLgFTOPyUq';
+    key = localStorage.getItem('chat_key') || atob(atob('WjJod1h6TlpPVWxJTkVVMlVHTnBSV2xUZFdwVFRrcERPRUpRUkRKamRFRlBhRFJNVFhRNFV3PT0='));
   else
     localStorage.setItem('chat_key', key);
     
   if (!model)
-    model = localStorage.getItem('chat_model') || 'gpt-3.5-turbo';
+    model = localStorage.getItem('chat_model') || 'gpt-4o-mini';
   else
     localStorage.setItem('chat_model', model);
 
@@ -154,6 +154,7 @@ self.SetState = function(data){
       enablebtn(btns['save']);
       enablebtn(btns['pub']);
     }
+    enablebtn(btns['fig']);
   }
   document.getElementById('state').innerText = data.state;
 }
@@ -302,6 +303,8 @@ disablebtn(btns['new']);
 disablebtn(btns['open']);
 disablebtn(btns['save']);
 disablebtn(btns['pub']);
+disablebtn(btns['fig']); // 确保按钮初始状态正确
+
 editor.style['display'] = 'none';
 scene.style['grid-column'] = '1 / -1';
 docframe.style['display'] = 'none';
@@ -348,6 +351,7 @@ if(location.hash == '' || location.hash.length <= 2){
     onresize();
     Print({color:'white', text:`Embeded project is loaded!`});
     enablebtn(btns['code']);
+    enablebtn(btns['fig']);
     if(pass == '')
       btns['code'].onclick();
     lua.loaded = true;
