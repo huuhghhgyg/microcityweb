@@ -805,7 +805,8 @@ chartHeader.onclick = function () {
   charts.forEach(chart => chart.resize());
 }
 
-chartHeader.oncontextmenu = function() {
+chartHeader.oncontextmenu = function(e) {
+  e.preventDefault();
   clearCharts();
 }
 
@@ -835,15 +836,20 @@ self.createChart = function (id, options) {
     
     const titleDiv = document.createElement('div'); 
     titleDiv.className = 'chart-title';
-    titleDiv.textContent = options.title?.text || id;
+    titleDiv.textContent = id;
 
     const chartDiv = document.createElement('div');
     chartDiv.style.height = '300px';
     chartDiv.style.width = '100%';
     chartDiv.id = id;
 
+    // 添加底部拖动条
+    const resizerDiv = document.createElement('div');
+    resizerDiv.className = 'chart-resizer';
+
     container.appendChild(titleDiv);
     container.appendChild(chartDiv);
+    container.appendChild(resizerDiv);
     chartframe.querySelector('#chart-content').appendChild(container);
     
     const chart = echarts.init(chartDiv, null, {
@@ -851,6 +857,32 @@ self.createChart = function (id, options) {
     });
     
     charts.set(id, chart);
+
+    // 添加拖动事件监听
+    let startY, startHeight;
+    
+    resizerDiv.addEventListener('mousedown', (e) => {
+      startY = e.clientY;
+      startHeight = parseInt(window.getComputedStyle(chartDiv).height, 10);
+      
+      function onMouseMove(e) {
+        const dy = e.clientY - startY;
+        const newHeight = Math.max(100, startHeight + dy); // 最小高度100px
+        chartDiv.style.height = newHeight + 'px';
+        chart.resize();
+      }
+      
+      function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+      
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+      
+      e.preventDefault();
+      e.stopPropagation();
+    });
 
     titleDiv.onclick = () => {
       chartDiv.style.display = chartDiv.style.display === 'none' ? 'block' : 'none';
@@ -895,6 +927,35 @@ self.updateChart = function (id, data) {
   }
 }
 
+// 添加单组数据
+self.appendChartData = function (id, data) {
+  if (!data || data.length === 0) return;
+
+  const chart = charts.get(id);
+  if (!chart) return;
+
+  const options = chart.getOption();
+  if (!options.series) return;
+
+  for (let i = 0; i < options.series.length; i++) {
+    const series = options.series[i];
+
+    // 如果series.data不是[]，则将其转换为数组
+    if (!Array.isArray(series.data)) {
+      series.data = [series.data];
+    }
+
+    // 添加新数据
+    // console.log('data i:', i, data[i]);
+    // console.log('series.data:', series.data);
+    series.data.push(data[i]);
+
+    // 合并后的数据
+    // console.log('appendChartData', id, i, series);
+  }
+  chart.setOption(options, { notMerge: false });
+}
+
 self.removeChart = function (id) {
   const chart = charts.get(id);
   if (chart) {
@@ -920,7 +981,7 @@ self.clearCharts = function () {
 
 // Charts resize bar
 
-function initResizable() {
+function initResizeHandle() {
   const handleH = chartframe.querySelector('#handle-horizontal');
   const handleV = chartframe.querySelector('#handle-vertical');
   const chartHeaderHeight = parseInt(window.getComputedStyle(chartHeader).height, 10);
@@ -990,4 +1051,4 @@ function initResizable() {
   });
 }
 
-initResizable();
+initResizeHandle();
